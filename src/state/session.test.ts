@@ -3,7 +3,7 @@ import { GRADING_LENGTH } from '../game/belts'
 import { makeQuestion } from '../game/questions'
 import type { Answer } from '../game/scoring'
 import { recordSession } from './session'
-import { createProfile } from './storage'
+import { createProfile } from './profile'
 
 const answer = (correct: boolean, ms = 2000): Answer => ({
   question: makeQuestion({ a: 3, b: 4 }, 'multiply'),
