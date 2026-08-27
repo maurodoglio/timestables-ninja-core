@@ -19,8 +19,9 @@ export const DEFAULT_SETTINGS: Settings = {
 }
 
 export function createProfile(name: string): Profile {
+  const now = Date.now()
   return {
-    id: `ninja-${Date.now().toString(36)}`,
+    id: `ninja-${now.toString(36)}`,
     name: name.trim() || 'Young Ninja',
     belt: 'white',
     xp: 0,
@@ -31,13 +32,15 @@ export function createProfile(name: string): Profile {
     history: [],
     sparringBest: 0,
     settings: { ...DEFAULT_SETTINGS, language: detectLanguage() },
-    createdAt: Date.now(),
+    createdAt: now,
+    updatedAt: now,
   }
 }
 
 /** Bring an older stored profile up to the current schema. */
 export function migrate(envelope: Envelope): Profile {
   const profile = envelope.profile
+  const now = Date.now()
   return {
     ...createProfile(profile.name ?? 'Young Ninja'),
     ...profile,
@@ -46,6 +49,10 @@ export function migrate(envelope: Envelope): Profile {
     facts: profile.facts ?? {},
     achievements: profile.achievements ?? [],
     history: profile.history ?? [],
+    // Profiles persisted before this field existed fall back to createdAt
+    // (or now, if that's missing too) rather than 0, so they don't always
+    // lose a last-write-wins comparison against a freshly created profile.
+    updatedAt: profile.updatedAt ?? profile.createdAt ?? now,
   }
 }
 

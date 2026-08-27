@@ -92,6 +92,13 @@ export interface Profile {
   sparringBest: number
   settings: Settings
   createdAt: number
+  /**
+   * Last time this profile changed, in any way (session recorded, settings
+   * changed, etc). Used for last-write-wins conflict resolution when a
+   * profile syncs across devices via a remote store; purely local to a
+   * single device otherwise.
+   */
+  updatedAt: number
 }
 
 export const factKey = (kind: QuestionKind, a: number, b: number): string =>

@@ -61,6 +61,7 @@ export function recordSession(
         ? Math.max(profile.sparringBest, sparringScore)
         : profile.sparringBest,
     history: [result, ...profile.history].slice(0, HISTORY_LIMIT),
+    updatedAt: now,
   }
 
   const unlocked = newlyEarned(next, result)
