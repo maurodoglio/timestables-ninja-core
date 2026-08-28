@@ -10,6 +10,9 @@ export const it: Translations = {
     on: 'Sì',
     off: 'No',
     notYet: 'Non ancora',
+    signedInAs: 'Accesso come {name}',
+    signOut: 'Esci',
+    syncing: 'Sincronizzazione…',
   },
 
   welcome: {
@@ -79,6 +82,9 @@ export const it: Translations = {
     begin: 'Inizia l’allenamento',
     lockedHint: 'Conquista una cintura superiore per sbloccare questa tabellina',
     tableTitle: 'Tabellina del {n}',
+    nothingToPractise: 'Niente da allenare ancora — torna al dojo.',
+    next: 'Avanti',
+    finish: 'Fine',
   },
 
   grading: {

@@ -8,6 +8,9 @@ export const en = {
     on: 'On',
     off: 'Off',
     notYet: 'Not yet',
+    signedInAs: 'Signed in as {name}',
+    signOut: 'Sign out',
+    syncing: 'Syncing…',
   },
 
   welcome: {
@@ -73,6 +76,9 @@ export const en = {
     begin: 'Begin training',
     lockedHint: 'Earn a higher belt to unlock this table',
     tableTitle: '{n} times table',
+    nothingToPractise: 'Nothing to practise yet — head back to the dojo.',
+    next: 'Next',
+    finish: 'Finish',
   },
 
   grading: {
