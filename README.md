@@ -13,11 +13,13 @@ instead of drifting apart.
 ## What's here
 
 - `src/game` — belts ladder, fact/question generation, weighted practice
-  selection, scoring and grading rules.
+  selection, scoring and grading rules, and the avatar catalog
+  (`AVATARS`, `getAvatar`, `isAvatarId`).
 - `src/i18n` — English and Italian catalogues, language detection,
   `{placeholder}` interpolation, locale formatters (numbers, dates, lists).
 - `src/state` — pure profile mutations: folding a finished session into a
-  profile (`recordSession`) and achievement rules. Deliberately excludes any
+  profile (`recordSession`), renaming a profile (`renameProfile`), and
+  achievement rules. Deliberately excludes any
   persistence (`localStorage`, `AsyncStorage`, Firestore, ...); each client
   owns its own storage layer.
 

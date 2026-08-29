@@ -27,6 +27,28 @@ export interface Belt {
   includeDivision: boolean
 }
 
+export type AvatarId =
+  | 'white-mask'
+  | 'yellow-mask'
+  | 'orange-mask'
+  | 'green-mask'
+  | 'blue-mask'
+  | 'purple-mask'
+  | 'brown-mask'
+  | 'red-mask'
+  | 'black-mask'
+  | 'master-mask'
+
+export interface Avatar {
+  id: AvatarId
+  /** Emoji or short label representing this avatar. */
+  label: string
+  /** Colour associated with this avatar, for visual consistency with belts. */
+  color: string
+  /** Ninja Stars cost to unlock this avatar; 0 for free/default avatars. */
+  starCost: number
+}
+
 export interface Fact {
   a: number
   b: number
@@ -64,6 +86,7 @@ export interface SessionResult {
   total: number
   correct: number
   averageMs: number
+  /** Ninja Stars earned during this session. */
   xpEarned: number
   passed?: boolean
   at: number
@@ -83,7 +106,9 @@ export interface Profile {
   id: string
   name: string
   belt: BeltId
+  /** Ninja Stars earned so far. */
   xp: number
+  avatarId: AvatarId
   streakDays: number
   lastTrainedOn: string | null
   facts: Record<string, FactStat>

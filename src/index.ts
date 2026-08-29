@@ -5,6 +5,7 @@
  */
 export * from './game/types'
 export * from './game/belts'
+export * from './game/avatars'
 export * from './game/questions'
 export * from './game/scoring'
 export * from './i18n'

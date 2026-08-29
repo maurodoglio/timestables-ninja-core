@@ -55,8 +55,9 @@ const MODE_MULTIPLIER: Record<SessionMode, number> = {
 }
 
 /**
- * XP for one answer: correct answers are worth 10, with a speed bonus of up to
- * 5 for answering under four seconds. Wrong answers still earn 1 for trying.
+ * Ninja Stars for one answer: correct answers are worth 10, with a speed
+ * bonus of up to 5 for answering under four seconds. Wrong answers still
+ * earn 1 for trying.
  */
 export function xpForAnswer(answer: Answer, mode: SessionMode): number {
   if (!answer.correct) return 1
@@ -66,6 +67,11 @@ export function xpForAnswer(answer: Answer, mode: SessionMode): number {
 
 export function xpForSession(answers: Answer[], mode: SessionMode): number {
   return answers.reduce((sum, a) => sum + xpForAnswer(a, mode), 0)
+}
+
+/** Format a Ninja Stars total for display, e.g. `formatStars(42)` -> `'42 ⭐'`. */
+export function formatStars(n: number): string {
+  return `${n} ⭐`
 }
 
 export function averageMs(answers: Answer[]): number {

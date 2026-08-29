@@ -3,6 +3,7 @@ import { GRADING_LENGTH } from './belts'
 import {
   applyAnswers,
   evaluateGrading,
+  formatStars,
   nextStreak,
   toDayKey,
   updateStat,
@@ -103,5 +104,12 @@ describe('streaks', () => {
 
   it('formats day keys with padding', () => {
     expect(toDayKey(new Date(2026, 0, 5))).toBe('2026-01-05')
+  })
+})
+
+describe('formatStars', () => {
+  it('appends a star emoji to the count', () => {
+    expect(formatStars(42)).toBe('42 ⭐')
+    expect(formatStars(0)).toBe('0 ⭐')
   })
 })
