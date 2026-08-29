@@ -1,9 +1,10 @@
 import { detectLanguage } from '../i18n'
 import { isBeltId } from '../game/belts'
+import { DEFAULT_AVATAR_ID, isAvatarId } from '../game/avatars'
 import type { Profile, Settings } from '../game/types'
 
 /** Bumped when the persisted shape of a profile changes incompatibly. */
-export const SCHEMA_VERSION = 1
+export const SCHEMA_VERSION = 2
 
 export interface Envelope {
   version: number
@@ -24,6 +25,7 @@ export function createProfile(name: string): Profile {
     id: `ninja-${now.toString(36)}`,
     name: name.trim() || 'Young Ninja',
     belt: 'white',
+    avatarId: DEFAULT_AVATAR_ID,
     xp: 0,
     streakDays: 0,
     lastTrainedOn: null,
@@ -45,6 +47,7 @@ export function migrate(envelope: Envelope): Profile {
     ...createProfile(profile.name ?? 'Young Ninja'),
     ...profile,
     belt: isBeltId(profile.belt) ? profile.belt : 'white',
+    avatarId: isAvatarId(profile.avatarId) ? profile.avatarId : DEFAULT_AVATAR_ID,
     settings: { ...DEFAULT_SETTINGS, ...(profile.settings ?? {}) },
     facts: profile.facts ?? {},
     achievements: profile.achievements ?? [],
@@ -53,6 +56,18 @@ export function migrate(envelope: Envelope): Profile {
     // (or now, if that's missing too) rather than 0, so they don't always
     // lose a last-write-wins comparison against a freshly created profile.
     updatedAt: profile.updatedAt ?? profile.createdAt ?? now,
+  }
+}
+
+/**
+ * Update a profile's display name. Trims the input and falls back to
+ * 'Young Ninja' if empty, mirroring `createProfile`'s name handling.
+ */
+export function renameProfile(profile: Profile, name: string): Profile {
+  return {
+    ...profile,
+    name: name.trim() || 'Young Ninja',
+    updatedAt: Date.now(),
   }
 }
 
