@@ -61,6 +61,22 @@ describe('mastery', () => {
     const stale = factWeight(stat({ lastSeen: now - 10 * 86_400_000 }), now)
     expect(stale).toBeGreaterThan(factWeight(stat({ lastSeen: now }), now))
   })
+
+  it('down-weights facts built from trivial multipliers (1, 10)', () => {
+    const now = Date.now()
+    // Same stat, only the operands differ: 7x8 is a "real" fact, 7x1 and
+    // 7x10 should never compete with it for practice time.
+    expect(factWeight(stat(), now, { a: 7, b: 1 })).toBeLessThan(
+      factWeight(stat(), now, { a: 7, b: 8 }),
+    )
+    expect(factWeight(stat(), now, { a: 7, b: 10 })).toBeLessThan(
+      factWeight(stat(), now, { a: 7, b: 8 }),
+    )
+    // Even an unseen, rusty x1/x10 fact should stay low priority.
+    expect(factWeight(undefined, now, { a: 9, b: 1 })).toBeLessThan(
+      factWeight(undefined, now, { a: 9, b: 8 }),
+    )
+  })
 })
 
 describe('selectQuestions', () => {
@@ -101,6 +117,21 @@ describe('selectQuestions', () => {
 
   it('returns nothing for an empty table selection', () => {
     expect(selectQuestions({ tables: [], count: 10, stats: {} })).toEqual([])
+  })
+
+  it('rarely selects trivial x1/x10 facts once other facts are mastered', () => {
+    // Simulate a student who has mastered everything in the 7 table,
+    // including 7x1 and 7x10, at a later belt test.
+    const mastered = stat({ attempts: 10, correct: 10, avgMs: 1500, streak: 5 })
+    const stats: Record<string, ReturnType<typeof stat>> = {}
+    for (let b = 1; b <= 12; b += 1) {
+      stats[factKey('multiply', 7, b)] = mastered
+    }
+    const qs = selectQuestions({ tables: [7], count: 400, stats })
+    const trivialHits = qs.filter((q) => q.fact.b === 1 || q.fact.b === 10).length
+    // 2 of 12 facts would be ~66 by chance; difficulty weighting should
+    // keep them well below that even though all facts are equally mastered.
+    expect(trivialHits).toBeLessThan(40)
   })
 })
 

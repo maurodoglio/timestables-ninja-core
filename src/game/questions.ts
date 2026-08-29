@@ -51,13 +51,44 @@ const LEVEL_WEIGHT: Record<MasteryLevel, number> = {
 }
 
 /**
+ * Multipliers that make a fact trivially easy regardless of mastery
+ * (anything times 1, and the "add a zero" ×10 facts). Without this, a fact
+ * like 7×10 looks identical to 7×7 or 7×8 once both are "mastered", so it
+ * keeps resurfacing in later belt tests just as often as genuinely hard
+ * facts. Down-weighting these operands keeps practice time (and grading
+ * questions) focused on the facts that are actually still being learned.
+ */
+const TRIVIAL_MULTIPLIERS = new Set([1, 10])
+/** Comparatively easy, but not as trivial as ×1/×10. */
+const EASY_MULTIPLIERS = new Set([2, 5])
+
+function operandDifficulty(n: number): number {
+  if (TRIVIAL_MULTIPLIERS.has(n)) return 0.2
+  if (EASY_MULTIPLIERS.has(n)) return 0.6
+  return 1
+}
+
+/**
+ * Intrinsic difficulty of a fact based on its operands alone, independent of
+ * how the student has performed on it. 1 for a fact with no easy operand,
+ * scaling down towards 0 for facts built entirely from trivial multipliers
+ * (e.g. 1×10).
+ */
+export function factDifficulty(fact: Fact): number {
+  return operandDifficulty(fact.a) * operandDifficulty(fact.b)
+}
+
+/**
  * How urgently a fact should be practised. Struggling and slow facts score
  * higher; facts not seen for a long time get a gentle boost so mastery is
- * refreshed rather than assumed.
+ * refreshed rather than assumed. The result is then scaled by the fact's
+ * intrinsic difficulty so trivial facts (×1, ×10) never dominate a session
+ * just because they happen to be unseen or rusty.
  */
 export function factWeight(
   stat: FactStat | undefined,
   now: number = Date.now(),
+  fact?: Fact,
 ): number {
   const level = masteryLevel(stat)
   let weight = LEVEL_WEIGHT[level]
@@ -68,7 +99,8 @@ export function factWeight(
     const days = (now - stat.lastSeen) / 86_400_000
     if (days > 3) weight += Math.min(days - 3, 5)
   }
-  return Math.max(weight, 0.5)
+  const difficulty = fact ? factDifficulty(fact) : 1
+  return Math.max(weight * difficulty, 0.5 * difficulty)
 }
 
 export type Rng = () => number
@@ -118,7 +150,7 @@ export function selectQuestions({
     const kind: QuestionKind =
       includeDivision && rng() < 0.3 ? 'divide' : 'multiply'
     const weights = pool.map((f) =>
-      factWeight(stats[factKey(kind, f.a, f.b)], now),
+      factWeight(stats[factKey(kind, f.a, f.b)], now, f),
     )
     const repeatIndices = pool
       .map((f, idx) => (makeQuestion(f, kind).id === lastId ? idx : -1))
@@ -146,7 +178,7 @@ export function weakestFacts(
   return factsForTables(tables)
     .map((fact) => ({
       fact,
-      weight: factWeight(stats[factKey('multiply', fact.a, fact.b)], now),
+      weight: factWeight(stats[factKey('multiply', fact.a, fact.b)], now, fact),
       seen: stats[factKey('multiply', fact.a, fact.b)]?.attempts ?? 0,
     }))
     .filter((entry) => entry.seen > 0)
